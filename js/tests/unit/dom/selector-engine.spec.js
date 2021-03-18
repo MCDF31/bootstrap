@@ -66,7 +66,7 @@ describe('SelectorEngine', () => {
       </ul>`
 
       const list = fixtureEl.querySelector('ul')
-      const liList = [].concat(...fixtureEl.querySelectorAll('li'))
+      const liList = [...fixtureEl.querySelectorAll('li')]
       const result = SelectorEngine.children(list, 'li')
 
       expect(result).toEqual(liList)
