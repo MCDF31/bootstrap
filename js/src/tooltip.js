@@ -7,22 +7,13 @@
 
 import * as Popper from '@popperjs/core'
 
-import {
-  defineJQueryPlugin,
-  findShadowRoot,
-  getElement,
-  getUID,
-  isElement,
-  isRTL,
-  noop,
-  typeCheckConfig
-} from './util/index'
-import { DefaultAllowlist, sanitizeHtml } from './util/sanitizer'
+import { defineJQueryPlugin, findShadowRoot, getElement, getUID, isRTL, noop, typeCheckConfig } from './util/index'
+import { DefaultAllowlist } from './util/sanitizer'
 import Data from './dom/data'
 import EventHandler from './dom/event-handler'
 import Manipulator from './dom/manipulator'
-import SelectorEngine from './dom/selector-engine'
 import BaseComponent from './base-component'
+import TemplateFactory from './util/template-factory'
 
 /**
  * ------------------------------------------------------------------------
@@ -137,6 +128,7 @@ class Tooltip extends BaseComponent {
     this._hoverState = ''
     this._activeTrigger = {}
     this._popper = null
+    this._templateFactory = null
 
     // Protected
     this._config = this._getConfig(config)
@@ -270,11 +262,6 @@ class Tooltip extends BaseComponent {
 
     tip.classList.add(CLASS_NAME_SHOW)
 
-    const customClass = this._resolvePossibleFunction(this._config.customClass)
-    if (customClass) {
-      tip.classList.add(...customClass.split(' '))
-    }
-
     // If this is a touch-enabled device we add extra
     // empty mouseover listeners to the body's immediate children;
     // only needed because of broken event delegation on iOS
@@ -365,62 +352,41 @@ class Tooltip extends BaseComponent {
       return this.tip
     }
 
-    const element = document.createElement('div')
-    element.innerHTML = this._config.template
+    const templateFactory = this._getTemplateFactory(this._getContentForTemplate())
 
-    const tip = element.children[0]
-    this.setContent(tip)
+    const tip = templateFactory.toHtml()
     tip.classList.remove(CLASS_NAME_FADE, CLASS_NAME_SHOW)
 
     this.tip = tip
     return this.tip
   }
 
-  setContent(tip) {
-    this._sanitizeAndSetContent(tip, this.getTitle(), SELECTOR_TOOLTIP_INNER)
+  setContent(content) {
+    this.tip = this._getTemplateFactory(content).toHtml()
   }
 
-  _sanitizeAndSetContent(template, content, selector) {
-    const templateElement = SelectorEngine.findOne(selector, template)
-
-    if (!content && templateElement) {
-      templateElement.remove()
-      return
-    }
-
-    // we use append for html objects to maintain js events
-    this.setElementContent(templateElement, content)
-  }
-
-  setElementContent(element, content) {
-    if (element === null) {
-      return
-    }
-
-    if (isElement(content)) {
-      content = getElement(content)
-
-      // content is a DOM node or a jQuery
-      if (this._config.html) {
-        if (content.parentNode !== element) {
-          element.innerHTML = ''
-          element.append(content)
-        }
-      } else {
-        element.textContent = content.textContent
-      }
-
-      return
-    }
-
-    if (this._config.html) {
-      if (this._config.sanitize) {
-        content = sanitizeHtml(content, this._config.allowList, this._config.sanitizeFn)
-      }
-
-      element.innerHTML = content
+  _getTemplateFactory(content) {
+    // content = { selector : text  }
+    if (this._templateFactory) {
+      this._templateFactory.changeContent(content)
     } else {
-      element.textContent = content
+      this._templateFactory = new TemplateFactory({
+        content,
+        extraClass: this._resolvePossibleFunction(this._config.customClass),
+        template: this._config.template,
+        html: this._config.html,
+        sanitize: this._config.sanitize,
+        sanitizeFn: this._config.sanitizeFn,
+        allowList: this._config.allowList
+      })
+    }
+
+    return this._templateFactory
+  }
+
+  _getContentForTemplate() {
+    return {
+      [SELECTOR_TOOLTIP_INNER]: this.getTitle()
     }
   }
 
@@ -462,8 +428,8 @@ class Tooltip extends BaseComponent {
     return offset
   }
 
-  _resolvePossibleFunction(content) {
-    return typeof content === 'function' ? content.call(this._element) : content
+  _resolvePossibleFunction(arg) {
+    return typeof arg === 'function' ? arg.call(this._element) : arg
   }
 
   _getPopperConfig(attachment) {
@@ -676,11 +642,6 @@ class Tooltip extends BaseComponent {
     }
 
     typeCheckConfig(NAME, config, this.constructor.DefaultType)
-
-    if (config.sanitize) {
-      config.template = sanitizeHtml(config.template, config.allowList, config.sanitizeFn)
-    }
-
     return config
   }
 
