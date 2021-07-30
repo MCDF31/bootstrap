@@ -257,7 +257,10 @@ EventHandler.on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (
 })
 
 EventHandler.on(window, EVENT_LOAD_DATA_API, () =>
-  SelectorEngine.find(OPEN_SELECTOR).forEach(el => Offcanvas.getOrCreateInstance(el).show())
+  // eslint-disable-next-line unicorn/no-array-for-each
+  SelectorEngine.find(OPEN_SELECTOR).forEach(el => {
+    Offcanvas.getOrCreateInstance(el).show()
+  })
 )
 
 enableDismissTrigger(Offcanvas)

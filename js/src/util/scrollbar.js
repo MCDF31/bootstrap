@@ -85,6 +85,7 @@ class ScrollBarHelper {
     if (isElement(selector)) {
       callBack(selector)
     } else {
+      // eslint-disable-next-line unicorn/no-array-for-each
       SelectorEngine.find(selector, this._element).forEach(callBack)
     }
   }

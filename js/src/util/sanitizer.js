@@ -115,11 +115,11 @@ export function sanitizeHtml(unsafeHtml, allowList, sanitizeFn) {
     const attributeList = [...el.attributes]
     const allowedAttributes = [...(allowList['*'] || []), ...(allowList[elName] || [])]
 
-    attributeList.forEach(attr => {
+    for (const attr of attributeList) {
       if (!allowedAttribute(attr, allowedAttributes)) {
         el.removeAttribute(attr.nodeName)
       }
-    })
+    }
   }
 
   return createdDocument.body.innerHTML

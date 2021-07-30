@@ -304,9 +304,9 @@ class Carousel extends BaseComponent {
   }
 
   _addTouchEventListeners() {
-    SelectorEngine.find(SELECTOR_ITEM_IMG, this._element).forEach(itemImg => {
+    for (const itemImg of SelectorEngine.find(SELECTOR_ITEM_IMG, this._element)) {
       EventHandler.on(itemImg, EVENT_DRAG_START, e => e.preventDefault())
-    })
+    }
 
     if (this._pointerEvent) {
       EventHandler.on(this._element, EVENT_POINTERDOWN, event => this._start(event))
