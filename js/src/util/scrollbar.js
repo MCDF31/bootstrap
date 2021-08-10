@@ -85,8 +85,11 @@ class ScrollBarHelper {
     if (isElement(selector)) {
       callBack(selector)
     } else {
-      // eslint-disable-next-line unicorn/no-array-for-each
-      SelectorEngine.find(selector, this._element).forEach(sel => callBack(sel))
+      const selectors = SelectorEngine.find(selector, this._element)
+
+      for (const sel of selectors) {
+        callBack(sel)
+      }
     }
   }
 
