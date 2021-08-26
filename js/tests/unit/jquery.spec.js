@@ -6,6 +6,7 @@ import Carousel from '../../src/carousel.js'
 import Collapse from '../../src/collapse.js'
 import Dropdown from '../../src/dropdown.js'
 import Modal from '../../src/modal.js'
+import Offcanvas from '../../src/offcanvas.js'
 import Popover from '../../src/popover.js'
 import ScrollSpy from '../../src/scrollspy.js'
 import Tab from '../../src/tab.js'
@@ -31,6 +32,7 @@ describe('jQuery', () => {
     expect(Collapse.jQueryInterface).toEqual(jQuery.fn.collapse)
     expect(Dropdown.jQueryInterface).toEqual(jQuery.fn.dropdown)
     expect(Modal.jQueryInterface).toEqual(jQuery.fn.modal)
+    expect(Offcanvas.jQueryInterface).toEqual(jQuery.fn.offcanvas)
     expect(Popover.jQueryInterface).toEqual(jQuery.fn.popover)
     expect(ScrollSpy.jQueryInterface).toEqual(jQuery.fn.scrollspy)
     expect(Tab.jQueryInterface).toEqual(jQuery.fn.tab)
